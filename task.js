@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 var sys = require("sys")
+var exec = require("child_process").exec
 
 exports.tasks = {}
 
@@ -65,8 +66,9 @@ exports.run = function () {
 exports.sh = function(command) {
   var shell = process.ENV["SHELL"] || "sh"
   sys.puts("[" + shell + "] " + command)
-  sys.exec(shell + " -c " + command).addCallback(function (stdout, stderr) {
-    sys.puts(stdout)
+  exec(shell + " -c " + command, function (error, stdout, stderr) {
+    var out = (error === null) ? stdout : "Error: " + error
+    sys.puts(out)
   })
 }
 
