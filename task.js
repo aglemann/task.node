@@ -66,15 +66,17 @@ exports.run = function () {
 
 var chain = [], busy = false;
 
-exports.sh = function(command) {
-  if (busy) return chain.push(command)
+exports.sh = function(command, callback) {
+  var cmd = (typeof command == 'string') ? [command] : command
+  if (typeof callback == 'function') cmd.push(callback)
+  if (busy) return chain.push(cmd)
   busy = true
   var shell = process.ENV["SHELL"] || "sh"
-  sys.puts("[" + shell + "] " + command)
-  exec(shell + " -c " + command, function (error, stdout, stderr) {
+  sys.puts("[" + shell + "] " + cmd[0])
+  exec(shell + " -c " + cmd[0], function (error, stdout, stderr) {
     busy = false
-    var out = (error === null) ? stdout : error
-    sys.puts(out)
+    sys.puts(error === null ? stdout : error)
+    if (cmd[1]) cmd[1](error, stdout, stderr)
     if (chain.length) exports.sh(chain.pop())
   })
 }
