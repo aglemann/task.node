@@ -63,12 +63,19 @@ exports.run = function () {
 }
 
 // Helpers
+
+var chain = [], busy = false;
+
 exports.sh = function(command) {
+  if (busy) return chain.push(command)
+  busy = true
   var shell = process.ENV["SHELL"] || "sh"
   sys.puts("[" + shell + "] " + command)
   exec(shell + " -c " + command, function (error, stdout, stderr) {
-    var out = (error === null) ? stdout : "Error: " + error
+    busy = false
+    var out = (error === null) ? stdout : error
     sys.puts(out)
+    if (chain.length) exports.sh(chain.pop())
   })
 }
 
