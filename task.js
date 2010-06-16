@@ -15,10 +15,10 @@ exports.define = function (name) {
       break
     case 3:
       if (arguments[1] instanceof Array) {
+        callback.dependencies = arguments[1]
+      } else {
         callback.description  = arguments[1]
         callback.dependencies = []
-      } else {
-        callback.dependencies = arguments[1]
       }
       exports.tasks[name] = callback
       break
@@ -73,7 +73,7 @@ exports.sh = function(command, callback) {
   busy = true
   var shell = process.ENV["SHELL"] || "sh"
   sys.puts("[" + shell + "] " + cmd[0])
-  exec(shell + " -c " + cmd[0], function (error, stdout, stderr) {
+  exec(shell + " -c '" + cmd[0] + "'", function (error, stdout, stderr) {
     busy = false
     sys.puts(error === null ? stdout : error)
     if (cmd[1]) cmd[1](error, stdout, stderr)
